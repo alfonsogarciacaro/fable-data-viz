@@ -49,7 +49,7 @@ let data = dataset.Rows
 
 let run() =
     data
-    |> Seq.map (fun day -> dict ["instant", day.Instant; "cnt", day.Cnt * -50])
+    |> Seq.map (fun day -> dict ["instant", day.Instant; "cnt", day.Cnt])
     |> Seq.toArray
 
 (*

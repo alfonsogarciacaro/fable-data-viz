@@ -26,25 +26,21 @@ on the sample, and start exploring using IntelliSense.
 
 // TODO: run the following code, step-by-step
 
-// #load "../.paket/load/net46/main.group.fsx"
-#I "../packages/FSharp.Data/lib/net45"
-#I "../packages/MathNet.Numerics/lib/net461"
-#I "../packages/MathNet.Numerics.FSharp/lib/net45"
-
-#r "FSharp.Data.dll"
-#r "MathNet.Numerics.dll"
-#r "MathNet.Numerics.FSharp.dll"
+#load "../.paket/load/net46/main.group.fsx"
 
 open System
 open System.IO
 open FSharp.Data
 
+let [<Literal>] CD = __SOURCE_DIRECTORY__ + "/"
+let [<Literal>] DATA = CD + "../data/day.csv"
+
 // we create a type based on sample data
-type Dataset = CsvProvider<"../data/day.csv">
+type Dataset = CsvProvider<DATA>
 type Datapoint = Dataset.Row
 
 // we can now read data...
-let dataset = Dataset.Load("../data/day.csv")
+let dataset = Dataset.Load(DATA)
 let data = dataset.Rows
 
 let run() =

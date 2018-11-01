@@ -1,14 +1,15 @@
 GENERATE-LOAD-SCRIPTS: ON
+STORAGE: NONE
 RESTRICTION: == net46
 NUGET
   remote: https://www.nuget.org/api/v2
     FSharp.Core (4.5.2)
     FSharp.Data (3.0)
       FSharp.Core (>= 4.0.0.1)
-    MathNet.Numerics (4.5.1)
-    MathNet.Numerics.FSharp (4.5.1)
+    MathNet.Numerics (4.6)
+    MathNet.Numerics.FSharp (4.6)
       FSharp.Core (>= 4.3.3)
-      MathNet.Numerics (>= 4.5.1)
+      MathNet.Numerics (>= 4.6)
 
 GROUP Server
 STORAGE: NONE

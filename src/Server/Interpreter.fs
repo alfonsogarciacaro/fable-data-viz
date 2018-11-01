@@ -29,6 +29,7 @@ let private fail loc (ex: exn) (errs: FSharpErrorInfo[]) =
     None
 
 let evalScript (fsiSession: FsiEvaluationSession) (path: string) =
+    printfn "Evaluating %s" path
     match fsiSession.EvalScriptNonThrowing path with
     | Choice1Of2 _, _ ->
         let types = fsiSession.DynamicAssembly.DefinedTypes
@@ -39,10 +40,13 @@ let evalScript (fsiSession: FsiEvaluationSession) (path: string) =
             match t.GetMethod("run") with
             | null -> None
             | m -> Some m)
-        |> Option.map (fun meth ->
-            let res = meth.Invoke(null, [||])
-            printfn "Script evaluation complete"
-            // printfn "RESULT %A" res
-            res)
+        |> Option.bind (fun meth ->
+            try
+                let res = meth.Invoke(null, [||])
+                printfn "Script evaluation complete"
+                // printfn "RESULT %A" res
+                Some res
+            with ex ->
+                fail "`run` method" ex [||])
     | Choice2Of2 ex, errs ->
         fail "script" ex errs

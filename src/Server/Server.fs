@@ -1,7 +1,9 @@
 module Server
 
+open System
 open System.IO
 open System.Collections.Concurrent
+open Microsoft.Extensions.Configuration
 open Saturn
 open Giraffe
 
@@ -35,6 +37,11 @@ let app = application {
     use_cors "CORS_policy" (fun b -> b.AllowAnyOrigin() |> ignore)
     use_static "static"
     use_gzip
+    host_config (fun builder ->
+        builder.ConfigureAppConfiguration(Action<_,IConfigurationBuilder>(fun ctx config ->
+            config.AddJsonFile("appsettings.json") |> ignore
+        ))
+    )
 }
 
 let evalScript fsiSession path =
@@ -45,17 +52,21 @@ let evalScript fsiSession path =
 [<EntryPoint>]
 let main _ =
     let fsiSession = Interpreter.initSession()
-    let scriptFile = Path.GetFullPath("../Bicycles.fsx")
-    evalScript fsiSession scriptFile
+    let watchingDir = Path.GetFullPath("..")
+    printfn "Watching dir %s" watchingDir
+    // printfn "Scripts found %A" <| Directory.GetFiles(watchingDir, "*.fsx")
+    do
+        Directory.GetFiles(watchingDir, "*.fsx")
+        |> Seq.tryHead
+        |> Option.iter (evalScript fsiSession)
 
     let watcher =
-        new FileSystemWatcher(
-            Path.GetDirectoryName(scriptFile),
-            Filter=Path.GetFileName(scriptFile),
-            EnableRaisingEvents=true)
-    watcher.Changed.Add(fun _ ->
-        printfn "Script changed, evaluating..."
-        evalScript fsiSession scriptFile)
+        new FileSystemWatcher(watchingDir,
+                              Filter="*.fsx",
+                              EnableRaisingEvents=true)
+    watcher.Changed.Add(fun ev ->
+        printfn "Script changed: %s" ev.FullPath
+        evalScript fsiSession ev.FullPath)
 
     run app
     0
